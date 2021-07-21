@@ -1,0 +1,111 @@
+version: "3"
+
+###########################################################
+# 개념이 헷갈릴 때는 각 컨테이너가 독립적이라는 것을 기억하세요!
+###########################################################
+
+services:
+  ###########################################################
+  ###########################################################
+  ###########################################################
+
+  # 앞으로 docker로 다음과 같은 서비스를 제공할 것입니다.
+  backend:
+    # 서비스 명 명명 -> 첫 글자는 underscale로 지정해야 함.
+    build:
+      #앞으로 dockerfile의 빌드를 지정할 것입니다.
+      context: ./backend
+      # 현재 dir에서 빌드할 것입니다. ( 저장된 DOCKER_FIREST_MIG의 위치 )
+      # dockerfile: ./backend/Dockerfile
+      # build할 dockerfile의 위치를 지정합니다.
+      # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
+      # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
+    # command: ["input()"]
+    # command: python app.py runserver 0.0.0.0:5000
+    # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
+
+    command: flask run --host=0.0.0.0 --port=5000
+
+    # command: python app.py runserver 0.0.0.0:5000
+
+    networks:
+      - app-tier
+    # command: ["flask", "run"]
+    volumes:
+      - ./backend:/app
+      # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
+      # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
+
+    environment:
+      FLASK_DEBUG: 1
+      FLASK_APP: ./app.py
+    ports:
+      - 5000:5000
+      # <user의 port : container의 port>로 port를 연결합니다.
+      # flask의 경우 5000번이 유명한 port number로 container에서 5000번을 엽니다.
+      # 브라우저에서 접속을 가능하게 하는 port number를 user's port number로 지정합니다.
+
+  ###########################################################
+  ###########################################################
+  ###########################################################
+
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     # args:
+  #     #   DJANGO_ALLOWED_HOSTS: "*"
+  #     #   DJANGO_SECRET_KEY: "*"
+  #     #   DJANGO_CORS_ORIGIN_WHITELIST: "*"
+  #   command: python app.py runserver 0.0.0.0:5000
+  #   ports:
+  #     - 5000:5000
+  #   volumes:
+  #     - ./backend/:/app
+  #   expose:
+  #     - 5000
+  #   env_file:
+  #     - ./settings/dev/.env.dev
+  #   # depends_on:
+  #   #   - db
+
+  ########################################################################
+  # GUNICON이 들어가야 함 in prod
+  ########################################################################
+
+  ########################################################################
+  # NGINX가 추가돼야 함 in prod
+  ########################################################################
+
+  frontend:
+    build:
+      context: ./frontend
+      # dockerfile: ./frontend/Dockerfile
+    command: ["npm", "start"]
+    ports:
+      - 3000:3000
+    networks:
+      - app-tier
+    volumes:
+      - ./frontend:/app
+    environment:
+      - CI=true
+      - CHOKIDAR_USEPOLLING=true
+
+#   redis:
+#     image: "redis:alpine"
+#     networks:
+#       - app-tier
+#     ports:
+#       - "6379:6379"
+
+# volumes:
+#   # postgres_data:
+#   static_volume:
+#   media_volume:
+# #   build_folder:
+# # redis_data:
+# # esdata:
+
+networks:
+  app-tier:
+    driver: bridge

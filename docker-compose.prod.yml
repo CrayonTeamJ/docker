@@ -1,0 +1,99 @@
+version: "3"
+
+###########################################################
+# docker-compose -f docker-compose.prod.yml up
+###########################################################
+
+###########################################################
+# 개념이 헷갈릴 때는 각 컨테이너가 독립적이라는 것을 기억하세요!
+###########################################################
+
+services:
+  # 앞으로 docker로 다음과 같은 서비스를 제공할 것입니다.
+  backend:
+    # 서비스 명 명명 -> 첫 글자는 underscale로 지정해야 함.
+    build:
+      #앞으로 dockerfile의 빌드를 지정할 것입니다.
+      context: ./backend
+      # 현재 dir에서 빌드할 것입니다. ( 저장된 DOCKER_FIREST_MIG의 위치 )
+      # dockerfile: ./backend/Dockerfile
+      # build할 dockerfile의 위치를 지정합니다.
+      # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
+      # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
+
+    volumes:
+      - ./backend:/app
+      # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
+      # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
+    ports:
+      - 5000:5000
+      # <user의 port : container의 port>로 port를 연결합니다.
+      # flask의 경우 5000번이 유명한 port number로 container에서 5000번을 엽니다.
+      # 브라우저에서 접속을 가능하게 하는 port number를 user's port number로 지정합니다.
+
+  ########################################################################
+  # GUNICON이 들어가야 함 in prod
+  ########################################################################
+
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      # - ./frontend:/frontend
+      # - build_folder:/frontend/build_folder
+      - ./frontend:/app
+    ports:
+      - 3001:3000
+
+      # nginx 컨테이너(서버)
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:8080
+    volumes:
+      - static_volume:/backend/staticfiles
+      - media_volume:/backend/mediafiles
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+
+  elastic_search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - cluster.initial_master_nodes=es01
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./elasticsearch/data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - app-tier
+
+  redis:
+    image: "redis:alpine"
+    networks:
+      - app-tier
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  build_folder:
+  redis_data:
+  esdata:
+
+networks:
+  app-tier:
+    driver: bridge
