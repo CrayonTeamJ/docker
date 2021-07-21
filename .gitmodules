@@ -4,3 +4,6 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/CrayonTeamJ/backend.git
+[submodule "backend_model"]
+	path = backend_model
+	url = https://github.com/CrayonTeamJ/backend_model.git
