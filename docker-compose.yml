@@ -76,7 +76,7 @@ services:
       - app-tier
     # command: ["flask", "run"]
     volumes:
-      - ./backend:/app
+      - ./backend_model:/app
       # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
       # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
 
