@@ -49,24 +49,42 @@ services:
   ###########################################################
   ###########################################################
 
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     # args:
-  #     #   DJANGO_ALLOWED_HOSTS: "*"
-  #     #   DJANGO_SECRET_KEY: "*"
-  #     #   DJANGO_CORS_ORIGIN_WHITELIST: "*"
-  #   command: python app.py runserver 0.0.0.0:5000
-  #   ports:
-  #     - 5000:5000
-  #   volumes:
-  #     - ./backend/:/app
-  #   expose:
-  #     - 5000
-  #   env_file:
-  #     - ./settings/dev/.env.dev
-  #   # depends_on:
-  #   #   - db
+  ###########################################################
+  ###########################################################
+  ###########################################################
+
+  # 앞으로 docker로 다음과 같은 서비스를 제공할 것입니다.
+  backend_model:
+    # 서비스 명 명명 -> 첫 글자는 underscale로 지정해야 함.
+    build:
+      #앞으로 dockerfile의 빌드를 지정할 것입니다.
+      context: ./backend_model
+      # 현재 dir에서 빌드할 것입니다. ( 저장된 DOCKER_FIREST_MIG의 위치 )
+      # dockerfile: ./backend/Dockerfile
+      # build할 dockerfile의 위치를 지정합니다.
+      # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
+      # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
+    # command: ["input()"]
+    # command: python app.py runserver 0.0.0.0:5000
+    # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
+
+    command: flask run --host=0.0.0.0 --port=5000
+
+    # command: python app.py runserver 0.0.0.0:5000
+
+    networks:
+      - app-tier
+    # command: ["flask", "run"]
+    volumes:
+      - ./backend_model:/app
+      # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
+      # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
+
+    environment:
+      FLASK_DEBUG: 1
+      FLASK_APP: ./app.py
+    ports:
+      - 5001:5000
 
   ########################################################################
   # GUNICON이 들어가야 함 in prod
