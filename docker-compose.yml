@@ -58,7 +58,7 @@ services:
       # 서비스 명 명명 -> 첫 글자는 underscale로 지정해야 함.
       build:
         #앞으로 dockerfile의 빌드를 지정할 것입니다.
-        context: ./backend
+        context: ./backend_model
         # 현재 dir에서 빌드할 것입니다. ( 저장된 DOCKER_FIREST_MIG의 위치 )
         # dockerfile: ./backend/Dockerfile
         # build할 dockerfile의 위치를 지정합니다.
