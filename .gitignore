@@ -72,4 +72,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+__pycache__/
+*.py[cod]
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,visualstudiocode
