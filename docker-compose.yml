@@ -109,6 +109,24 @@ services:
       - CI=true
       - CHOKIDAR_USEPOLLING=true
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports: 
+      - 5672:5672
+      - 15672:15672
+      
+  celery:
+    container_name: celery
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    hostname: celery
+    entrypoint: celery
+    command: -A app.celery worker --loglevel=info
+    volumes:
+      - ./backend:/usr/src/app
+
 #   redis:
 #     image: "redis:alpine"
 #     networks:
