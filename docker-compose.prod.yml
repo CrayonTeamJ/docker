@@ -20,13 +20,20 @@ services:
       # build할 dockerfile의 위치를 지정합니다.
       # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
       # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
+    command: gunicorn app:app -b 0.0.0.0:5000 -w 2
 
+    environment:
+      # FLASK_DEBUG: 1
+      FLASK_APP: ./app.py
+    networks:
+      - app-tier
     volumes:
       - ./backend:/app
       # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
       # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
     ports:
       - 5000:5000
+
       # <user의 port : container의 port>로 port를 연결합니다.
       # flask의 경우 5000번이 유명한 port number로 container에서 5000번을 엽니다.
       # 브라우저에서 접속을 가능하게 하는 port number를 user's port number로 지정합니다.
@@ -38,14 +45,52 @@ services:
   frontend:
     build:
       context: ./frontend
+    command: ["npm", "start"]
+
+    networks:
+      - app-tier
     volumes:
       # - ./frontend:/frontend
       # - build_folder:/frontend/build_folder
       - ./frontend:/app
     ports:
-      - 3001:3000
+      - 3000:3000
 
       # nginx 컨테이너(서버)
+
+  backend_model:
+    # 서비스 명 명명 -> 첫 글자는 underscale로 지정해야 함.
+    build:
+      #앞으로 dockerfile의 빌드를 지정할 것입니다.
+      context: ./backend_model
+      # 현재 dir에서 빌드할 것입니다. ( 저장된 DOCKER_FIREST_MIG의 위치 )
+      # dockerfile: ./backend/Dockerfile
+      # build할 dockerfile의 위치를 지정합니다.
+      # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
+      # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
+    # command: ["input()"]
+    # command: python app.py runserver 0.0.0.0:5000
+    # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
+
+    command: gunicorn app:app -b 0.0.0.0:5000 -w 2
+
+    # command: flask run --host=0.0.0.0 --port=5050
+
+    # command: python app.py runserver 0.0.0.0:5000
+
+    networks:
+      - app-tier
+    # command: ["flask", "run"]
+    volumes:
+      - ./backend_model:/app
+      # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
+      # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
+
+    environment:
+      # FLASK_DEBUG: 1
+      FLASK_APP: ./app.py
+    ports:
+      - 5050:5050
 
   nginx:
     build: ./nginx
@@ -59,32 +104,68 @@ services:
       - backend
       - frontend
 
-  elastic_search:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
-    container_name: es01
-    environment:
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - cluster.initial_master_nodes=es01
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+  elasticsearch:
+    build:
+      context: "./ELK/elasticsearch/"
+      dockerfile: elastic.Dockerfile
+      args:
+        ELK_VERSION: $ELK_VERSION
     volumes:
-      - ./elasticsearch/data01:/usr/share/elasticsearch/data
+      - type: bind
+        source: "./ELK/elasticsearch/config/elasticsearch.yml"
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - "./ELK/elasticsearch/data:/usr/share/elasticsearch/data"
     ports:
-      - 9200:9200
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
     networks:
+      # - elk
       - app-tier
 
-  redis:
-    image: "redis:alpine"
-    networks:
-      - app-tier
+  logstash:
+    build:
+      context: "./ELK/logstash/"
+      dockerfile: logstash.Dockerfile
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: "./ELK/logstash/config/logstash.yml"
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: "./ELK/logstash/pipeline"
+        target: /usr/share/logstash/pipeline
+        read_only: true
     ports:
-      - "6379:6379"
+      - "5001:5001/tcp"
+      - "5001:5001/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      # - elk
+      - app-tier
+    depends_on:
+      - elasticsearch
+
+  # redis:
+  #   image: "redis:alpine"
+  #   networks:
+  #     - app-tier
+  #   ports:
+  #     - "6379:6379"
+
+networks:
+  app-tier:
+    driver: bridge
 
 volumes:
   postgres_data:
@@ -93,7 +174,4 @@ volumes:
   build_folder:
   redis_data:
   esdata:
-
-networks:
-  app-tier:
-    driver: bridge
+  elasticsearch:
