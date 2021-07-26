@@ -10,7 +10,10 @@
 # Icon must end with two \r
 Icon
 
-
+# environment variable
+.env
+.settings/.env
+./settings/.env
 # Thumbnails
 ._*
 

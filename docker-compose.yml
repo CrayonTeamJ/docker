@@ -37,7 +37,8 @@ services:
       - ./backend:/app
       # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
       # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
-
+    env_file:
+      - ./settings/dev.env
     environment:
       FLASK_DEBUG: 1
       FLASK_APP: ./app.py
@@ -73,7 +74,6 @@ services:
     command: flask run --host=0.0.0.0 --port=5050
 
     # command: python app.py runserver 0.0.0.0:5000
-
     networks:
       - app-tier
     # command: ["flask", "run"]
@@ -82,6 +82,8 @@ services:
       # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
       # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
 
+    env_file:
+      - ./settings/dev.env
     environment:
       FLASK_DEBUG: 1
       FLASK_APP: ./app.py
@@ -218,6 +220,5 @@ networks:
   app-tier:
     driver: bridge
     #asdf
-
 # volumes:
 #   elasticsearch:
