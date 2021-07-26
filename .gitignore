@@ -11,9 +11,9 @@
 Icon
 
 # environment variable
-.env
-.settings/.env
-./settings/.env
+dev.env
+.settings/dev.env
+./settings/dev.env
 # Thumbnails
 ._*
 
