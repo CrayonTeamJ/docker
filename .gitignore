@@ -16,7 +16,7 @@ dev.env
 ./settings/dev.env
 # Thumbnails
 ._*
-
+.settings\dev.env
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
