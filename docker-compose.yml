@@ -23,8 +23,10 @@ services:
     # command: ["input()"]
     # command: python app.py runserver 0.0.0.0:5000
     # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
-
+    # command: gunicorn -b 0.0.0.0:8000 server:app
+    # command: gunicorn -w 1 -b 0.0.0.0:5000 app:app
     command: flask run --host=0.0.0.0 --port=5000
+    # command: gunicorn app:app -b 0.0.0.0:5000 -w 2
 
     # command: python app.py runserver 0.0.0.0:5000
 
@@ -109,23 +111,23 @@ services:
       - CI=true
       - CHOKIDAR_USEPOLLING=true
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - 5672:5672
-      - 15672:15672
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
 
-  celery:
-    container_name: celery
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    hostname: celery
-    entrypoint: celery
-    command: -A app.celery worker --loglevel=info
-    volumes:
-      - ./backend:/usr/src/app
+  # celery:
+  #   container_name: celery
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   hostname: celery
+  #   entrypoint: celery
+  #   command: -A app.celery worker --loglevel=info
+  #   volumes:
+  #     - ./backend:/usr/src/app
 
   #   redis:
   #     image: "redis:alpine"
@@ -216,3 +218,6 @@ networks:
   app-tier:
     driver: bridge
     #asdf
+
+volumes:
+  elasticsearch:
