@@ -10,10 +10,21 @@
 # Icon must end with two \r
 Icon
 
+# environment variable
+.dev.env
+.settings/.dev.env
+./settings/.dev.env
 
+dev.env
+.settings/dev.env
+./settings/dev.env
+
+dev.env
+.settings/dev.env
+./settings/dev.env
 # Thumbnails
 ._*
-
+.settings\dev.env
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd

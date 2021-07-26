@@ -21,7 +21,8 @@ services:
       # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
       # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
     command: gunicorn app:app -b 0.0.0.0:5000 -w 2
-
+    env_file:
+      - ./settings/dev.env
     environment:
       # FLASK_DEBUG: 1
       FLASK_APP: ./app.py
@@ -85,76 +86,77 @@ services:
       - ./backend_model:/app
       # <원격으로 조종할 user의 위치 : 만들어 낼 docker container의 위치(앞으로 flask에 대해서 작업할 위치)>
       # local의 ./flask의 작업공간과 container의 /app의 공간을 동일시하여 local의 ./flask에서 작업이 일어나면, container의 /app에서 똑같은 작업이 실행됩니다.
-
+    env_file:
+      - ./settings/dev.env
     environment:
       # FLASK_DEBUG: 1
       FLASK_APP: ./app.py
     ports:
       - 5050:5050
 
-  nginx:
-    build: ./nginx
-    ports:
-      - 80:8080
-    volumes:
-      - static_volume:/backend/staticfiles
-      - media_volume:/backend/mediafiles
-      - build_folder:/var/www/frontend
-    depends_on:
-      - backend
-      - frontend
+  # nginx:
+  #   build: ./nginx
+  #   ports:
+  #     - 80:8080
+  #   volumes:
+  #     - static_volume:/backend/staticfiles
+  #     - media_volume:/backend/mediafiles
+  #     - build_folder:/var/www/frontend
+  #   depends_on:
+  #     - backend
+  #     - frontend
 
-  elasticsearch:
-    build:
-      context: "./ELK/elasticsearch/"
-      dockerfile: elastic.Dockerfile
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - type: bind
-        source: "./ELK/elasticsearch/config/elasticsearch.yml"
-        target: /usr/share/elasticsearch/config/elasticsearch.yml
-        read_only: true
-      - "./ELK/elasticsearch/data:/usr/share/elasticsearch/data"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
-      # Use single node discovery in order to disable production mode and avoid bootstrap checks
-      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
-      discovery.type: single-node
-    networks:
-      # - elk
-      - app-tier
+  # elasticsearch:
+  #   build:
+  #     context: "./ELK/elasticsearch/"
+  #     dockerfile: elastic.Dockerfile
+  #     args:
+  #       ELK_VERSION: $ELK_VERSION
+  #   volumes:
+  #     - type: bind
+  #       source: "./ELK/elasticsearch/config/elasticsearch.yml"
+  #       target: /usr/share/elasticsearch/config/elasticsearch.yml
+  #       read_only: true
+  #     - "./ELK/elasticsearch/data:/usr/share/elasticsearch/data"
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   environment:
+  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #     ELASTIC_PASSWORD: changeme
+  #     # Use single node discovery in order to disable production mode and avoid bootstrap checks
+  #     # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+  #     discovery.type: single-node
+  #   networks:
+  #     # - elk
+  #     - app-tier
 
-  logstash:
-    build:
-      context: "./ELK/logstash/"
-      dockerfile: logstash.Dockerfile
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - type: bind
-        source: "./ELK/logstash/config/logstash.yml"
-        target: /usr/share/logstash/config/logstash.yml
-        read_only: true
-      - type: bind
-        source: "./ELK/logstash/pipeline"
-        target: /usr/share/logstash/pipeline
-        read_only: true
-    ports:
-      - "5001:5001/tcp"
-      - "5001:5001/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      # - elk
-      - app-tier
-    depends_on:
-      - elasticsearch
+  # logstash:
+  #   build:
+  #     context: "./ELK/logstash/"
+  #     dockerfile: logstash.Dockerfile
+  #     args:
+  #       ELK_VERSION: $ELK_VERSION
+  #   volumes:
+  #     - type: bind
+  #       source: "./ELK/logstash/config/logstash.yml"
+  #       target: /usr/share/logstash/config/logstash.yml
+  #       read_only: true
+  #     - type: bind
+  #       source: "./ELK/logstash/pipeline"
+  #       target: /usr/share/logstash/pipeline
+  #       read_only: true
+  #   ports:
+  #     - "5001:5001/tcp"
+  #     - "5001:5001/udp"
+  #     - "9600:9600"
+  #   environment:
+  #     LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #   networks:
+  #     # - elk
+  #     - app-tier
+  #   depends_on:
+  #     - elasticsearch
 
   # redis:
   #   image: "redis:alpine"
