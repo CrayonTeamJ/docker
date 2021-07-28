@@ -44,6 +44,8 @@ services:
       FLASK_APP: ./app.py
     ports:
       - 5000:5000
+    depends_on:
+      - rabbit
       # <user의 port : container의 port>로 port를 연결합니다.
       # flask의 경우 5000번이 유명한 port number로 container에서 5000번을 엽니다.
       # 브라우저에서 접속을 가능하게 하는 port number를 user's port number로 지정합니다.
@@ -113,24 +115,34 @@ services:
       - CI=true
       - CHOKIDAR_USEPOLLING=true
 
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    networks:
+      - app-tier
+    ports:
+      - 5672:5672
+      - 15672:15672
 
-  # celery:
-  #   container_name: celery
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   hostname: celery
-  #   entrypoint: celery
-  #   command: -A app.celery worker --loglevel=info
-  #   volumes:
-  #     - ./backend:/usr/src/app
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./settings/dev.env
+    depends_on:
+      - rabbit
+      - backend
+    networks:
+      - app-tier
+    command: celery -A tasks worker --loglevel=info
+    volumes:
+      - ./backend:/usr/src/app
 
+    
   #   redis:
   #     image: "redis:alpine"
   #     networks:
@@ -151,7 +163,7 @@ services:
       context: "./ELK/elasticsearch/"
       dockerfile: elastic.Dockerfile
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 7.13.4
     volumes:
       - type: bind
         source: "./ELK/elasticsearch/config/elasticsearch.yml"
