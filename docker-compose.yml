@@ -143,7 +143,6 @@ services:
       - ./backend:/usr/src/app
 
     
-
   #   redis:
   #     image: "redis:alpine"
   #     networks:
