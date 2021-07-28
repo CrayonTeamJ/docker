@@ -20,7 +20,8 @@ services:
       # build할 dockerfile의 위치를 지정합니다.
       # backend service에 대한 dockerfile은 DOCKER_FIRST_MIG/flask/Dockerfile 에 위치해 있습니다.
       # 현재 user가 위치한 디렉토리의 위치는 .../DOCKER_FIRST_MIG 이므로 ./flask/Dockerfile
-    command: gunicorn app:app -b 0.0.0.0:5000 -w 2
+    command: gunicorn app:app -b 0.0.0.0:5000
+    # command: gunicorn app:app -b 0.0.0.0:5000 -w 2
     env_file:
       - ./settings/dev.env
     environment:
@@ -46,7 +47,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    command: ["npm", "start"]
+    command: ["npm", "run", "build"]
 
     networks:
       - app-tier
@@ -73,7 +74,8 @@ services:
     # command: python app.py runserver 0.0.0.0:5000
     # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
 
-    command: gunicorn app:app -b 0.0.0.0:5000 -w 2
+    command: gunicorn app:app -b 0.0.0.0:5000
+    # command: gunicorn app:app -b 0.0.0.0:5000 -w 2
 
     # command: flask run --host=0.0.0.0 --port=5050
 
@@ -94,17 +96,17 @@ services:
     ports:
       - 5050:5050
 
-  # nginx:
-  #   build: ./nginx
-  #   ports:
-  #     - 80:8080
-  #   volumes:
-  #     - static_volume:/backend/staticfiles
-  #     - media_volume:/backend/mediafiles
-  #     - build_folder:/var/www/frontend
-  #   depends_on:
-  #     - backend
-  #     - frontend
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:8080
+    volumes:
+      # - static_volume:/backend/staticfiles
+      # - media_volume:/backend/mediafiles
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
 
   # elasticsearch:
   #   build:
@@ -170,9 +172,9 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
+  # postgres_data:
+  # static_volume:
+  # media_volume:
   build_folder:
   redis_data:
   esdata:
