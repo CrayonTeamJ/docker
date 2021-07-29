@@ -5,6 +5,7 @@
 <b>Seaflag</b> is a search engine that helps users to find a specific person or word in a video. The demo version provides multiple features such as pointing out the moments that contain certain keywords in English/Korean and identifying the appearance of seven BTS members (RM, Jin, Suga, J-Hope, Jimin, V, and Jungkook) within the input video.
 
 
+
 ## User Interface
 
 Coming Soon!
@@ -59,6 +60,7 @@ $ git clone https://github.com/CrayonTeamJ/docker.git
   $ git submodule update --init --recursive
   $ docker-compose -f docker-compose.prod.yml up   
   ```
+
 
 ## Directory Structure
 
@@ -160,11 +162,13 @@ $ git clone https://github.com/CrayonTeamJ/docker.git
 
 Coming soon!
 
+
 ## Additional Repositories
 
 - [Frontend](https://github.com/CrayonTeamJ/frontend.git)
 - [Backend (API Server)](https://github.com/CrayonTeamJ/backend.git)  
 - [Backend (Model Server)](https://github.com/CrayonTeamJ/backend_model.git)
+
 
 ## Contributors
 
