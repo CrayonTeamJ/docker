@@ -1,4 +1,4 @@
-# Seaflag - Team Crayon 
+# Seaflag (Team Crayon)
 
 ## Introduction
 
