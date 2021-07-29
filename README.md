@@ -8,7 +8,15 @@
 ## User Interface
 
 ## System Architecture
-![Architecture Diagram](https://user-images.githubusercontent.com/59460178/127428803-712b1e3e-d8ed-414f-bde8-3c64db44c020.png)
+![Architecture Diagram](https://user-images.githubusercontent.com/59460178/127429602-a1c04081-cf95-4ef2-b7c0-f215dc19639d.png)
+
+<b>React Framework</b> was used to develop the frontend of this website. The component architecture allowed us to reuse the code we wrote in all our features efficiently. We were also able to test individual pieces of the UI without interfering with the rest of the project.
+
+On the backend side, it was crucial to design two main servers separately to minimize the risk of a system breakdown. Both servers were built using <b>Flask Framework</b>, which provides a basic set of tools for web development. The API server provides basic user authentication, separates the input video into mp3 and mp4, stores them in the S3 bucket, and returns the search results by retrieving data from MongoDB. The model server utilizes YOLO, an object recognition algorithm, to detect specific figures in the video and stores the result in MongoDB. Because Python is fundamentally single-threaded, <b>RabbitMQ</b> was introduced as a message broker to distribute the tasks effectively.
+
+Since this website includes functions such as signup and login, <b>PostgreSQL</b>, a relational database, was utilized to manage user access and information. On the other hand, we decided to use <b>MongoDB</b>, a non-relational database, to store the image detection and speech recognition results. That is because each data is not tabular and doesn’t have dependencies with one another.
+
+
 
 ## Tech Stack
 
