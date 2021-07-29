@@ -28,6 +28,99 @@ Since this website includes functions such as signup and login, <b>PostgreSQL</b
 
 ## Directory Structure
 
+```bash
+├── README.md                                          - 리드미 파일
+│
+│
+├── backend/                                           - 백엔드 플라스크 디렉토리
+│   ├── dockerfile                                     - docker 파일
+│   ├── app.py                                         - 서버 시작, 서버 api 처리, Frontend/Backend model과 소통을 통해 기능을 호출, 처리
+│   ├── aud_search.py                                  - 음성 검색 기능
+│   ├── config.py                                      - postgreSQL와 연결하기 위한 key가 존재하는 파일
+│   ├── img_search.py                                  - 이미지 검색 기능     
+│   ├── models.py                                      - DB 테이블 정의
+│   ├── swagger.py                                     - 스웨거와 연동
+│   ├── tasks.py                                       - Celery task 정의
+│   ├── view.py                                        - DB 조작 기능
+│   ├── requirements.txt                               - 실행에 필요한 모듈들 정의
+│   ├── celerybeat-schedule                            - Celerybeat 스케줄러
+│   ├── function/                                              
+│   │    ├── clova_func.py                             - 클로바 음성인식 api 실행
+│   │    ├── s3_control.py                             - s3 기능 정의
+│   │    ├── trans.py                                  - 음성인식 결과 json 변환 
+│   │    └── video_func.py                             - 영상 다운로드 및 mp3/mp4 형태 저장
+│   └── migration/
+│
+│
+├── backend_model/
+│   ├── dockerfile                                     - docker 파일
+│   ├── app.py                                         - 서버 시작, 서버 api reply 처리, backend에서 요청을 받아 반환
+│   ├── best_4.pt                                      - 인공지능 학습 결과 weight 파일
+│   ├── detect.py                                      - Yolo 인공지능 실행 파일
+│   ├── tasks.py                                       - Celery task 정의
+│   ├── requirements.txt                               - 실행에 필요한 모듈들 정의       
+│   ├── models.py                                      - DB 테이블 정의
+│   ├── package-lock.json                             
+│   ├── function/                                              
+│   │    ├── s3_control.py                             - s3 기능 정의
+│   │    └── to_frame.py                               - 영상을 초단위 이미지로 추출
+│   ├── models/                                              
+│   ├── utils/                                              
+│
+│
+├── frontend/
+│   ├── dockerfile                                    - docker 파일
+│   ├── public/
+│   ├── node_modules/
+│   ├── package.json & package.lock.json              - 라이브러리 관리 파일
+│   └── src/ 
+│        ├── index.js & index.css                     - React 프로젝트 파일
+│        ├── App.js & App.css                         - page components 관리 파일
+│        ├── axios.js
+│        ├── index.js
+│        ├── store.js                                 - baseURL 설정
+│        ├── components/                                              
+│        │    ├── Footer.jsx
+│        │    ├── LandingInfo.jsx                     - 상단에 보여질 컴포넌트
+│        │    ├── Navigationbar.jsx                   - 네비게이션 바 컴포넌트
+│        │    ├── PrivateRoute.jsx                    - 회원 전용 구현을 위한 컴포넌트
+│        │    ├── Template.jsx                        - 탬플릿 컴포넌트
+│        │    ├── Timer.jsx                           - 로그인 유효시간 타이머
+│        │    ├── Typebtn.jsx                         - 스타일 라디오 버튼 컴포넌트
+│        ├── pages/    
+│        │    ├── ErrorPage.jsx                       - 서버에서 에러가 발생할 경우 보여지는 페이지 
+│        │    ├── LoadingPage.jsx                     - 서버에서 데이터를 불러 올 때 보여지는 페이지
+│        │    ├── MemberOnlyPage.jsx                  - 로그인하지 않았을 경우의 경고 페이지 
+│        │    ├── SigninPage.jsx                      - 로그인 페이지
+│        │    ├── SignupPage.jsx                      - 회원가입 페이지
+│        │    ├── UploadPage.jsx                      - 영상 업로드 페이지
+│        │    ├── ResultPage.jsx                      - 결과 페이지                                          
+│        │    └── SearchPage.jsx                      - 검색어 입력 및 검색 타입 선택 페이지                              
+│        ├── redux/   
+│        │    ├── index.js                            - rootReducer 
+│        │    ├── status.js                           - 비동기 처리를 위한 변수 관리 reducer                                                   
+│        │    └── user.js                             - user정보 관리를 위한 변수 관리 reducer                               
+│        ├── font/                                              
+│        └── img/
+│
+├── ELK / elasticsearch
+│
+│
+├── nginx/
+│   ├── Dockerfile                                    - nginx 도커파일
+│   └── nginx.conf                                    - nginx 설정파일
+│
+├── settings/                                         - 환경변수 설정 파일
+│   ├── dev/                                              
+│   │    └── .env.dev                                 - 개발환경변수 설정 파일
+│   └── prod/
+│        └── .env.prod                                - 배포환경변수 설정 파일
+├── docker-compose.yml                                - 개발용 docker-compose파일
+├── docker-compose.prod.yml                           - 배포용 docker-compose파일
+└── .gitignore	
+	
+``` 
+
 ## API Documentation
 
 ## Additional Repositories
