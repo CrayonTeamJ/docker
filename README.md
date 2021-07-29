@@ -142,7 +142,7 @@ $ git clone https://github.com/CrayonTeamJ/docker.git
 │
 │
 ├── nginx/
-│   ├── Dockerfile                                    - nginx 도커파일
+│   ├── dockerfile                                    - nginx 도커파일
 │   └── nginx.conf                                    - nginx 설정파일
 │
 ├── settings/                                         - 환경변수 설정 파일
