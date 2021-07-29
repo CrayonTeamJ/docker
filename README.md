@@ -38,7 +38,7 @@ $ git clone https://github.com/CrayonTeamJ/docker.git
 ### 2. Frontend
   - Install packages
   ```
-  $ cd Frontend
+  $ cd frontend
   $ npm install
   ```
   
