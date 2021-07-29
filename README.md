@@ -8,6 +8,7 @@
 ## User Interface
 
 ## System Architecture
+![Architecture Diagram](https://user-images.githubusercontent.com/59460178/127428803-712b1e3e-d8ed-414f-bde8-3c64db44c020.png)
 
 ## Tech Stack
 
