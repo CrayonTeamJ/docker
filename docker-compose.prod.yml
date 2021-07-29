@@ -46,7 +46,8 @@ services:
   frontend:
     build:
       context: ./frontend
-    command: ["npm", "start"]
+    # command: ["npm", "start"]
+    command: ["npm", "run", "build"]
 
     networks:
       - app-tier
@@ -73,7 +74,8 @@ services:
     # command: python app.py runserver 0.0.0.0:5000
     # command: gunicorn backend.wsgi --bind 0.0.0.0:5000
 
-    command: gunicorn app:app -b 0.0.0.0:5000 -w 2
+    # command: gunicorn app:app -b 0.0.0.0:5000 -w 2
+    command: gunicorn app:app -b 0.0.0.0:5000
 
     # command: flask run --host=0.0.0.0 --port=5050
 
@@ -94,43 +96,72 @@ services:
     ports:
       - 5050:5050
 
-  # nginx:
-  #   build: ./nginx
-  #   ports:
-  #     - 80:8080
-  #   volumes:
-  #     - static_volume:/backend/staticfiles
-  #     - media_volume:/backend/mediafiles
-  #     - build_folder:/var/www/frontend
-  #   depends_on:
-  #     - backend
-  #     - frontend
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:8080
+    volumes:
+      # - static_volume:/backend/staticfiles
+      # - media_volume:/backend/mediafiles
+      # - build_folder:/var/www/frontend
+      - ./frontend/build:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-tier
 
-  # elasticsearch:
-  #   build:
-  #     context: "./ELK/elasticsearch/"
-  #     dockerfile: elastic.Dockerfile
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: "./ELK/elasticsearch/config/elasticsearch.yml"
-  #       target: /usr/share/elasticsearch/config/elasticsearch.yml
-  #       read_only: true
-  #     - "./ELK/elasticsearch/data:/usr/share/elasticsearch/data"
-  #   ports:
-  #     - "9200:9200"
-  #     - "9300:9300"
-  #   environment:
-  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-  #     ELASTIC_PASSWORD: changeme
-  #     # Use single node discovery in order to disable production mode and avoid bootstrap checks
-  #     # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
-  #     discovery.type: single-node
-  #   networks:
-  #     # - elk
-  #     - app-tier
+  elasticsearch:
+    build:
+      context: "./ELK/elasticsearch/"
+      dockerfile: elastic.Dockerfile
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: "./ELK/elasticsearch/config/elasticsearch.yml"
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - "./ELK/elasticsearch/data:/usr/share/elasticsearch/data"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    networks:
+      # - elk
+      - app-tier
 
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    # environment:
+    networks:
+      #   - RABBITMQ_DEFAULT_USER=admin
+      #   - RABBITMQ_DEFAULT_PASS=mypass
+      - app-tier
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./settings/dev.env
+    depends_on:
+      - rabbit
+      - backend
+    networks:
+      - app-tier
+    command: celery -A tasks worker --loglevel=info
+    volumes:
+      - ./backend:/usr/src/app
   # logstash:
   #   build:
   #     context: "./ELK/logstash/"
@@ -170,9 +201,9 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
+  # postgres_data:
+  # static_volume:
+  # media_volume:
   build_folder:
   redis_data:
   esdata:
