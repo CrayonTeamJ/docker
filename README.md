@@ -177,5 +177,5 @@ Coming soon!
 
 | Yujeong Lee | Minwoong Kim | Somi Kim | Suyeon Maeng | Hayoung Lim | Gilhan Yong | 
 | :----: | :----: | :----: |:----: | :----: | :----: |
-| [@IAGREEBUT](https://github.com/IAGREEBUT) | [@POL6463](https://github.com/POL6463) | [@rlathal009](https://github.com/rlathal009) | [@maengsuyeon](https://github.com/maengsuyeon) | [@hayoung1998](https://github.com/hayoung1998) | [@Yong-ga-ri](https://github.com/Yong-ga-ri) |
+| [@IAGREEBUT](https://github.com/IAGREEBUT) | [@POL6463](https://github.com/POL6463) | [@rlathal009](https://github.com/rlathal009) | [@maengsuyeon](https://github.com/maengsuyeon) | [@hihahayoung](https://github.com/hihahayoung) | [@Yong-ga-ri](https://github.com/Yong-ga-ri) |
 |Frontend |Backend |AI/Backend |AI/Backend | AI/Backend |DevOps |
